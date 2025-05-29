@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Plus, Search, Filter, Download, Edit, Trash2 } from "lucide-react"
 import Link from "next/link"
+import ProfileDropdown from "@/components/profile-dropdown"
 
 const transactions = [
   {
@@ -168,9 +169,7 @@ export default function TransactionsPage() {
                   </div>
                 </DialogContent>
               </Dialog>
-              <Button variant="outline" size="sm">
-                Profile
-              </Button>
+              <ProfileDropdown />
             </div>
           </div>
         </div>

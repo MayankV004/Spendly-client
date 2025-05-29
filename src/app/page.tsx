@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight, BarChart3, PieChart, TrendingUp, Shield, Smartphone, Zap } from "lucide-react"
 
-export default function HomePage() {
+export default function LandingPage() {
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -168,6 +167,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-    </>
   )
 }

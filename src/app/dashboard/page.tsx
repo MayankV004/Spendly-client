@@ -19,6 +19,7 @@ import {
 } from "recharts"
 import { Plus, TrendingUp, TrendingDown, PiggyBank, Target } from "lucide-react"
 import Link from "next/link"
+import ProfileDropdown from "@/components/profile-dropdown"
 
 // Sample data
 const expenseData = [
@@ -99,9 +100,7 @@ export default function DashboardPage() {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Transaction
               </Button>
-              <Button variant="outline" size="sm">
-                Profile
-              </Button>
+              <ProfileDropdown />
             </div>
           </div>
         </div>

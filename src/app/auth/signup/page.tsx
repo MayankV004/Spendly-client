@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, ArrowLeft, Check, X } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Check, X } from "lucide-react"
 import axios from "@/lib/axios"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -25,7 +25,7 @@ export default function SignupPage() {
     confirmPassword: "",
   })
 
-  const router = useRouter();
+   const router = useRouter();
 
   const passwordRequirements = [
     { text: "At least 8 characters", met: formData.password.length >= 8 },
@@ -60,7 +60,6 @@ export default function SignupPage() {
     }finally{
       setIsLoading(false)
     }
-    
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +97,7 @@ export default function SignupPage() {
                   <Input
                     id="name"
                     name="name"
-                    placeholder="Full Name"
+                    placeholder="John Doe"
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -109,7 +108,7 @@ export default function SignupPage() {
                   <Input
                     id="username"
                     name="username"
-                    placeholder="Username"
+                    placeholder="johndoe"
                     value={formData.username}
                     onChange={handleInputChange}
                     required
@@ -123,7 +122,7 @@ export default function SignupPage() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="Email"
+                  placeholder="john@example.com"
                   value={formData.email}
                   onChange={handleInputChange}
                   required

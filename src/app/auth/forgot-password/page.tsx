@@ -12,13 +12,14 @@ import { ArrowLeft, Mail } from "lucide-react"
 import axios from "@/lib/axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation"
+
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [formData, setFormData] = useState({
       email: "",
     });
-const router = useRouter();
+    const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -104,7 +105,7 @@ const router = useRouter();
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" placeholder="Enter your email address" value={formData.email} onChange={handleInputChange} required />
+                <Input id="email" type="email" placeholder="Enter your email address" value={formData.email} onChange={handleInputChange} required />
               </div>
               <Button
                 type="submit"

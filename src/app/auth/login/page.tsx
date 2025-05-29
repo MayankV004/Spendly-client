@@ -19,7 +19,6 @@ import axios from "@/lib/axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -90,9 +89,9 @@ export default function LoginPage() {
                   type="email"
                   name="email"
                   placeholder="Enter your email"
-                  required
                   value={formData.email}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="space-y-2">
