@@ -225,8 +225,8 @@ export default function DashboardPage() {
                     <XAxis dataKey="month" />
                     <YAxis />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="income" fill="var(--color-income)" />
-                    <Bar dataKey="expenses" fill="var(--color-expenses)" />
+                    <Bar dataKey="income" fill="#16a34a" />
+                    <Bar dataKey="expenses" fill="#dc2626" />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartContainer>
