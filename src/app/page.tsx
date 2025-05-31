@@ -38,20 +38,7 @@ export default function LandingPage() {
             Track expenses, visualize spending patterns, and achieve your financial goals with our modern, intuitive
             finance tracker.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/signup">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline">
-              Watch Demo
-            </Button>
-          </div>
+
         </div>
       </section>
 

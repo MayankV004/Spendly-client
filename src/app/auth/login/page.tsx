@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,37 +15,49 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import axios from "@/lib/axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import type { LoginFormData } from "@/store/slices/authSlice";
+import { useAuth } from "@/hooks/useAuth";
+
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
   const router = useRouter();
+  const {login , isLoading , error , isAuthenticated , clearAuthError} = useAuth();
+
+  useEffect(()=>{
+        if(error)
+          {
+            clearAuthError()
+          }    
+  },[formData , clearAuthError])
+
+  useEffect(()=>{
+      if(isAuthenticated)
+      {
+        router.push('/dashboard');
+      }
+  },[isAuthenticated , router])
+
+  useEffect(()=>{
+    if(error)
+    {
+      toast.error(error);
+    }
+  },[error])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      const res = await axios.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (res.data.success) {
-        toast.success(res.data.message);
-        router.push("/dashboard");
-      } else {
-        toast.error(res.data.message);
-      }
-    } catch (err: any) {
-      toast.error(err.message);
-    } finally {
-      setIsLoading(false);
+    const result = await login(formData);
+    if(result.meta.requestStatus === 'fulfilled')
+    {
+      toast.success("Login successful!");
+      router.push('/dashboard');
     }
   };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,6 +103,7 @@ export default function LoginPage() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  disabled={isLoading}
                   required
                 />
               </div>
@@ -104,6 +117,7 @@ export default function LoginPage() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
+                    disabled={isLoading}
                     required
                   />
                   <Button
@@ -111,6 +125,7 @@ export default function LoginPage() {
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    disabled={isLoading}
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
