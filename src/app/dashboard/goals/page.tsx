@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Plus, Edit, Trash2, Calendar, Target, TrendingUp, PiggyBank } from "lucide-react"
 import ProfileDropdown from "@/components/ProfileDropdown" // Declare the ProfileDropdown variable
+import Navbar from "@/components/Navbar"
 
 // Sample goals data
 const goalsData = [
@@ -131,43 +132,7 @@ export default function GoalsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">F</span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Finora
-                </span>
-              </div>
-              <nav className="hidden md:flex space-x-6">
-                <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
-                  Dashboard
-                </Link>
-                <Link href="/dashboard/transactions" className="text-gray-600 hover:text-gray-900">
-                  Transactions
-                </Link>
-                <Link href="/dashboard/budgets" className="text-gray-600 hover:text-gray-900">
-                  Budgets
-                </Link>
-                <Link href="/dashboard/goals" className="text-blue-600 font-medium">
-                  Goals
-                </Link>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Transaction
-              </Button>
-              <ProfileDropdown />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar/>
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}

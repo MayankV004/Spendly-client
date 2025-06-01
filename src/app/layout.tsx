@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "sonner"
 const inter = Inter({ subsets: ["latin"] })
 import {ReduxProvider} from "@/providers/ReduxProvider";
+import Navbar from "@/components/Navbar"
 export const metadata: Metadata = {
   title: "Finora - Personal Finance Tracker",
   description: "Modern personal finance tracking application",
@@ -23,7 +24,6 @@ export default function RootLayout({
 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <main>
-
           {children}
           </main>
           <Toaster richColors/>

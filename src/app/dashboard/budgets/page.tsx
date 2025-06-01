@@ -3,7 +3,7 @@
 import { DialogTrigger } from "@/components/ui/dialog"
 
 import { useState } from "react"
-import Link from "next/link"
+
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Plus, Edit, Trash2, AlertCircle, CheckCircle2 } from "lucide-react"
-import ProfileDropdown from "@/components/ProfileDropdown" // Declare the ProfileDropdown variable
+
+import Navbar from "@/components/Navbar"
 
 // Sample budget data
 const budgetData = [
@@ -141,43 +142,7 @@ export default function BudgetsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">F</span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Finora
-                </span>
-              </div>
-              <nav className="hidden md:flex space-x-6">
-                <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
-                  Dashboard
-                </Link>
-                <Link href="/dashboard/transactions" className="text-gray-600 hover:text-gray-900">
-                  Transactions
-                </Link>
-                <Link href="/dashboard/budgets" className="text-blue-600 font-medium">
-                  Budgets
-                </Link>
-                <Link href="/dashboard/goals" className="text-gray-600 hover:text-gray-900">
-                  Goals
-                </Link>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Transaction
-              </Button>
-              <ProfileDropdown />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar/>
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
@@ -293,8 +258,7 @@ export default function BudgetsPage() {
                   </div>
                   <Progress
                     value={(budget.spent / budget.budgeted) * 100}
-                    className={`h-2 ${budget.spent > budget.budgeted ? "bg-red-200" : ""}`}
-                    indicatorClassName={budget.spent > budget.budgeted ? "bg-red-600" : budget.color}
+                    className={`h-2 ${budget.spent > budget.budgeted ? "bg-red-200" : ""} ${budget.spent > budget.budgeted ? "progress-indicator-red" : budget.color}`}
                   />
                   <div className="flex justify-between items-center">
                     <div>
@@ -457,12 +421,11 @@ export default function BudgetsPage() {
               </div>
               <Progress
                 value={((selectedBudgetForDetails?.spent || 0) / (selectedBudgetForDetails?.budgeted || 1)) * 100}
-                className="h-3"
-                indicatorClassName={
+                className={`h-3 ${
                   (selectedBudgetForDetails?.spent || 0) > (selectedBudgetForDetails?.budgeted || 0)
-                    ? "bg-red-600"
-                    : "bg-blue-600"
-                }
+                    ? "bg-red-200 progress-indicator-red"
+                    : "bg-blue-200 progress-indicator-blue"
+                }`}
               />
             </div>
 

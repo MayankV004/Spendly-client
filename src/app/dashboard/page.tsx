@@ -37,6 +37,7 @@ import {
 import Link from "next/link";
 import ProfileDropdown from "@/components/profile-dropdown";
 import { useAuth } from "@/hooks/useAuth";
+import Navbar from "@/components/Navbar";
 
 // Sample data
 const expenseData = [
@@ -105,7 +106,6 @@ const recentTransactions = [
 ];
 
 export default function DashboardPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState("This Month");
   const { user } = useAuth();
   const totalIncome = 5700;
   const totalExpenses = 4200;
@@ -114,64 +114,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">F</span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Finora
-                </span>
-              </div>
-              <nav className="hidden md:flex space-x-6">
-                <Link
-                  href="/dashboard"
-                  className="text-blue-600 font-medium relative group"
-                >
-                  Dashboard
-                  <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-                <Link
-                  href="/dashboard/transactions"
-                  className="text-gray-600 hover:text-gray-900 relative group"
-                >
-                  Transactions
-                  <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-                <Link
-                  href="/dashboard/budgets"
-                  className="text-gray-600 hover:text-gray-900 relative group"
-                >
-                  Budgets
-                  <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-                <Link
-                  href="/dashboard/goals"
-                  className="text-gray-600 hover:text-gray-900 relative group"
-                >
-                  Goals
-                  <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                size="sm"
-                className="bg-gradient-to-r from-blue-600 to-purple-600"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Transaction
-              </Button>
-              <ProfileDropdown />
-            </div>
-          </div>
-        </div>
-      </header>
-
+      <Navbar/>
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
