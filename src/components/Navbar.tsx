@@ -24,6 +24,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { usePathname } from "next/navigation";
+import { useTransactions } from "@/hooks/useTransaction";
+import { toast } from "sonner";
 function Navbar() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const categories = [
@@ -36,6 +38,62 @@ function Navbar() {
     "Income",
     "Other",
   ];
+  const [formData, setFormData] = useState({
+    description: "",
+    amount: 0,
+    type: "expense" as "income" | "expense",
+    category: "",
+    date: "",
+    notes: "",
+  });
+
+  const { addTransaction, isLoading } = useTransactions();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    //Form Validation
+    if (!formData.description || !formData.amount || !formData.category) {
+      toast.error("Please fill all the required fields!");
+      return;
+    }
+    try {
+      const data = {
+        description: formData.description,
+        amount: Number(formData.amount),
+        type: formData.type,
+        category: formData.category,
+        date: formData.date || new Date().toISOString().split("T")[0],
+        notes: formData.notes || undefined,
+      };
+      await addTransaction(data);
+      setFormData({
+        description: "",
+        amount: 0,
+        type: "expense",
+        category: "",
+        date: "",
+        notes: "",
+      });
+      setIsAddDialogOpen(false);
+      toast.success("Transaction added succesfully!");
+    } catch (error: any) {
+      toast.error("Transaction Failed!");
+    }
+  };
+
   const currentPath = usePathname();
   return (
     <header className="bg-white border-b">
@@ -139,22 +197,41 @@ function Navbar() {
                     Add a new income or expense transaction to your account.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
+
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="space-y-2">
                     <Label htmlFor="description">Description</Label>
                     <Input
                       id="description"
+                      name="description"
                       placeholder="Enter transaction description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      required
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="amount">Amount</Label>
-                      <Input id="amount" type="number" placeholder="0.00" />
+                      <Input
+                        id="amount"
+                        name="amount"
+                        type="number"
+                        placeholder="0.00"
+                        value={formData.amount}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="type">Type</Label>
-                      <Select>
+                      <Select
+                        value={formData.type}
+                        onValueChange={(value) =>
+                          handleSelectChange("type", value)
+                        }
+                        required
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -167,7 +244,13 @@ function Navbar() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="category">Category</Label>
-                    <Select>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) =>
+                        handleSelectChange("category", value)
+                      }
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
@@ -182,7 +265,23 @@ function Navbar() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="date">Date</Label>
-                    <Input id="date" type="date" />
+                    <Input
+                      id="date"
+                      name="date"
+                      value={formData.date.toString()}
+                      onChange={handleInputChange}
+                      type="date"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Input
+                      id="notes"
+                      name="notes"
+                      value={formData.notes}
+                      onChange={handleInputChange}
+                      type="text"
+                    />
                   </div>
                   <div className="flex justify-end space-x-2">
                     <Button
@@ -191,11 +290,11 @@ function Navbar() {
                     >
                       Cancel
                     </Button>
-                    <Button onClick={() => setIsAddDialogOpen(false)}>
-                      Add Transaction
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? "Adding..." : "Add Transaction"}
                     </Button>
                   </div>
-                </div>
+                </form>
               </DialogContent>
             </Dialog>
             <ProfileDropdown />
