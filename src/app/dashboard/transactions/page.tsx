@@ -37,6 +37,8 @@ import {
   CreateTransactionData,
 } from "@/store/slices/transactionSlice";
 import { toast } from "sonner";
+import { EditTransactionModal } from "@/components/EditTransactionModal"; 
+
 const categories = [
   "Food & Dining",
   "Transportation",
@@ -58,6 +60,7 @@ export default function TransactionsPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
   const [transactionToDelete, setTransactionToDelete] =
     useState<Transaction | null>(null);
+  
   const {
     transactions,
     fetchTransactions,
@@ -89,6 +92,7 @@ export default function TransactionsPage() {
       selectedType === "all" || transaction.type === selectedType;
     return matchesSearch && matchesCategory && matchesType;
   });
+
   const handleEdit = (transaction: Transaction): void => {
     setEditingTransaction(transaction);
     setIsEditModalOpen(true);
@@ -101,15 +105,15 @@ export default function TransactionsPage() {
 
   const confirmDelete = async (): Promise<void> => {
     if (transactionToDelete) {
-      
       try {
-        console.log(transactionToDelete._id)
+        console.log(transactionToDelete._id);
         await removeTransaction(transactionToDelete._id);
-        toast.success(`Deleted ${transactionToDelete.description}`)
+        toast.success(`Deleted ${transactionToDelete.description}`);
         setIsDeleteDialogOpen(false);
         setTransactionToDelete(null);
       } catch (error) {
         console.error("Failed to delete transaction:", error);
+        toast.error("Failed to delete transaction");
       }
     }
   };
@@ -119,17 +123,27 @@ export default function TransactionsPage() {
   ): Promise<void> => {
     if (editingTransaction) {
       try {
+        // console.log(editTransaction)
         await editTransaction({
           id: editingTransaction._id,
           ...formData,
         });
+        toast.success(`Updated ${editingTransaction.description}`);
         setIsEditModalOpen(false);
         setEditingTransaction(null);
+        fetchTransactions();
       } catch (error) {
         console.error("Failed to update transaction:", error);
+        toast.error("Failed to update transaction");
       }
     }
   };
+
+  const handleEditModalClose = (): void => {
+    setIsEditModalOpen(false);
+    setEditingTransaction(null);
+  };
+
   const exportTransactions = (): void => {
     const csvContent = [
       ["Date", "Description", "Category", "Type", "Amount"].join(","),
@@ -154,12 +168,14 @@ export default function TransactionsPage() {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   };
+
   const resetAllFilters = (): void => {
     setSearchTerm("");
     setSelectedCategory("all");
     setSelectedType("all");
     resetFilters();
   };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -239,15 +255,28 @@ export default function TransactionsPage() {
                     <Download className="h-4 w-4 mr-2" />
                     Export
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={resetAllFilters}
+                  >
                     <Filter className="h-4 w-4 mr-2" />
-                    More Filters
+                    Reset Filters
                   </Button>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Error Display */}
+        {error && (
+          <Card className="mb-6 border-red-200">
+            <CardContent className="pt-6">
+              <p className="text-red-600">Error: {error}</p>
+            </CardContent>  
+          </Card>
+        )}
 
         {/* Transactions Table */}
         <Card>
@@ -259,73 +288,98 @@ export default function TransactionsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {filteredTransactions.map((transaction) => (
-                <div
-                  key={transaction._id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div
-                      className={`w-3 h-3 rounded-full ${
-                        transaction.type === "income"
-                          ? "bg-green-500"
-                          : "bg-red-500"
-                      }`}
-                    />
-                    <div>
-                      <p className="font-medium">{transaction.description}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant="secondary" className="text-xs">
-                          {transaction.category}
-                        </Badge>
-                        <span className="text-xs text-gray-500">
-                          {new Date(transaction.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className= " ml-2 text-sm">
-                        {transaction.notes}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right">
-                      <p
-                        className={`font-semibold ${
+            {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <p className="text-gray-500">Loading transactions...</p>
+              </div>
+            ) : filteredTransactions.length === 0 ? (
+              <div className="flex justify-center items-center py-8">
+                <p className="text-gray-500">No transactions found</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredTransactions.map((transaction) => (
+                  <div
+                    key={transaction._id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div
+                        className={`w-3 h-3 rounded-full ${
                           transaction.type === "income"
-                            ? "text-green-600"
-                            : "text-red-600"
+                            ? "bg-green-500"
+                            : "bg-red-500"
                         }`}
-                      >
-                        {transaction.type === "income" ? "+" : ""}$
-                        {Math.abs(transaction.amount).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-gray-500 capitalize">
-                        {transaction.type}
-                      </p>
+                      />
+                      <div>
+                        <p className="font-medium">{transaction.description}</p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {transaction.category}
+                          </Badge>
+                          <span className="text-xs text-gray-500">
+                            {new Date(transaction.date).toLocaleDateString()}
+                          </span>
+                        </div>
+                        {transaction.notes && (
+                          <p className="ml-2 text-sm text-gray-600">
+                            {transaction.notes}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(transaction)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(transaction)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <p
+                          className={`font-semibold ${
+                            transaction.type === "income"
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {transaction.type === "income" ? "+" : ""}₹
+                          {Math.abs(transaction.amount).toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-500 capitalize">
+                          {transaction.type}
+                        </p>
+                      </div>
+                      <div className="flex space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(transaction)}
+                          disabled={isLoading}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(transaction)}
+                          disabled={isLoading}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Edit Transaction Modal */}
+        <EditTransactionModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          transaction={editingTransaction}
+          onSubmit={handleEditSubmit}
+          isLoading={isLoading}
+        />
+
+        {/* Delete Confirmation Dialog */}
         <AlertDialog
           open={isDeleteDialogOpen}
           onOpenChange={setIsDeleteDialogOpen}

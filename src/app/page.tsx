@@ -149,7 +149,7 @@ export default function LandingPage() {
             <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xs">F</span>
             </div>
-            <span className="font-semibold text-gray-600">© 2024 Finora. All rights reserved.</span>
+            <span className="font-semibold text-gray-600">© 2025 Finora. All rights reserved.</span>
           </div>
         </div>
       </footer>
