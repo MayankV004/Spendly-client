@@ -59,7 +59,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (formData: LoginFormData, { rejectWithValue }) => {
     try {
-      const res = await axios.post("auth/login", formData);
+      const res = await axios.post("/api/auth/login", formData);
       return res.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login Failed");
@@ -71,7 +71,7 @@ export const signUpUser = createAsyncThunk(
   "auth/signUpUser",
   async (formData: SignUpFormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/auth/register", formData);
+      const response = await axios.post("/api/auth/register", formData);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -85,7 +85,7 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/auth/logout");
+      const response = await axios.post("/api/auth/logout");
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Logout failed");
@@ -97,7 +97,7 @@ export const refreshToken = createAsyncThunk(
   "auth/refreshToken",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/auth/refresh-token");
+      const response = await axios.post("/api/auth/refresh-token");
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -111,7 +111,7 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async (formData: ForgotPasswordFormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/auth/forgot-password", formData);
+      const response = await axios.post("/api/auth/forgot-password", formData);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -125,7 +125,7 @@ export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async (formData: ResetPasswordFormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/auth/reset-password", formData);
+      const response = await axios.post("/api/auth/reset-password", formData);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -139,7 +139,7 @@ export const changePassword = createAsyncThunk(
   "auth/changePassword",
   async (formData: ChangePasswordFormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/auth/change-password", formData);
+      const response = await axios.post("/api/auth/change-password", formData);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -153,7 +153,7 @@ export const verifyEmail = createAsyncThunk(
   "auth/verifyEmail",
   async (token: string, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`/auth/verify-email?token=${token}`);
+      const response = await axios.post(`/api/auth/verify-email?token=${token}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -167,7 +167,7 @@ export const resendVerificationEmail = createAsyncThunk(
   "auth/resendVerificationEmail",
   async (email: string, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/auth/resend-verification-email", {
+      const response = await axios.post("/api/auth/resend-verification-email", {
         email,
       });
       return response.data;

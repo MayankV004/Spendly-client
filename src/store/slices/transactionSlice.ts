@@ -91,7 +91,7 @@ export const fetchAllTransactions = createAsyncThunk('transaction/fetchAll' , as
                 params.append(Key,value.toString());
             }
         })
-        const response = await axios.get(`/transactions?${params.toString()}`);
+        const response = await axios.get(`/api/transactions?${params.toString()}`);
         return response.data;
     }catch(error:any)
     {
@@ -105,7 +105,7 @@ export const fetchRecentTransactions = createAsyncThunk(
   "transactions/fetchRecent",
   async (limit: number = 5, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/transactions/recent?limit=${limit}`);
+      const response = await axios.get(`/api/transactions/recent?limit=${limit}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -123,7 +123,7 @@ export const fetchTransactionStats = createAsyncThunk(
       if (params.month) queryParams.append("month", params.month.toString());
       if (params.year) queryParams.append("year", params.year.toString());
 
-      const response = await axios.get(`/transactions/stats?${queryParams.toString()}`);
+      const response = await axios.get(`/api/transactions/stats?${queryParams.toString()}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -137,7 +137,7 @@ export const createTransaction = createAsyncThunk(
   "transactions/create",
   async (transactionData: CreateTransactionData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/transactions", transactionData);
+      const response = await axios.post("/api/transactions", transactionData);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -151,7 +151,7 @@ export const updateTransaction = createAsyncThunk(
   "transactions/update",
   async ({ id, ...updateData }: UpdateTransactionData, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`/transactions/${id}`, updateData);
+      const response = await axios.put(`/api/transactions/${id}`, updateData);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -165,8 +165,8 @@ export const deleteTransaction = createAsyncThunk(
   "transactions/delete",
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`/transactions/${id}`);
-      return { id };
+      const response = await axios.post(`/api/transactions/${id}`);
+      return { id, data:response.data };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete transaction"

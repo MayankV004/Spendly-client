@@ -33,49 +33,50 @@ export const useTransactions = () => {
   } = useAppSelector((state) => state.transactions);
 
   const fetchTransactions = useCallback(
-    (filters?: TransactionFilters) => {
+    async (filters?: TransactionFilters) => {
       return dispatch(fetchAllTransactions(filters || currentFilters));
     },
     [dispatch, currentFilters]
   );
 
   const fetchRecent = useCallback(
-    (limit?: number) => {
+    async (limit?: number) => {
       return dispatch(fetchRecentTransactions(limit ?? 5));
     },
     [dispatch]
   );
 
   const fetchStats = useCallback(
-    (params: { month: number; year: number }) => {
+    async (params: { month: number; year: number }) => {
       return dispatch(fetchTransactionStats(params));
     },
     [dispatch]
   );
 
   const addTransaction = useCallback(
-    (transactionData: CreateTransactionData) => {
+    async (transactionData: CreateTransactionData) => {
       return dispatch(createTransaction(transactionData));
     },
     [dispatch]
   );
 
   const editTransaction = useCallback(
-    (updateData: UpdateTransactionData) => {
+    async (updateData: UpdateTransactionData) => {
       return dispatch(updateTransaction(updateData));
     },
     [dispatch]
   );
 
   const removeTransaction = useCallback(
-    (id: string) => {
+    async (id: string) => {
+      console.log(id)
       return dispatch(deleteTransaction(id));
     },
     [dispatch]
   );
 
   const updateFilters = useCallback(
-    (filters: TransactionFilters) => {
+    async (filters: TransactionFilters) => {
       dispatch(setFilters(filters));
     },
     [dispatch]

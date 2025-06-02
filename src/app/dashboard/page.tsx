@@ -84,11 +84,11 @@ export default function DashboardPage() {
       value: category.value,
       color: getCategoryColor(category.name),
     })) ?? [];
-
+    console.log(stats?.monthlyTrend);
   const monthlyData = stats?.monthlyTrend
     ? transformMonthlyTrend(stats.monthlyTrend)
     : [];
-  const monthlyBudget = 5000;
+  const monthlyBudget = totalIncome;
   const budgetRemaining = monthlyBudget - totalExpenses;
   const budgetPercentage =
     monthlyBudget > 0
@@ -134,7 +134,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                ${totalIncome.toLocaleString()}
+                ₹{totalIncome.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
                 Current month total
@@ -151,7 +151,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-600">
-                ${totalExpenses.toLocaleString()}
+                ₹{totalExpenses.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
                 Current month total
@@ -168,7 +168,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
-                ${totalSavings.toLocaleString()}
+                ₹{totalSavings.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
                 Savings rate: {savingsRate}%
@@ -360,7 +360,7 @@ export default function DashboardPage() {
                               : "text-red-600"
                           }`}
                         >
-                          {transaction.type === "income" ? "+" : ""}$
+                          {transaction.type === "income" ? "+" : "-"}₹
                           {Math.abs(transaction.amount).toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500">

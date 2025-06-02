@@ -1,47 +1,42 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Search, Filter, Download, Edit, Trash2 } from "lucide-react"
-import Navbar from "@/components/Navbar"
-
-const transactions = [
-  {
-    id: 1,
-    date: "2024-01-15",
-    description: "Grocery Store",
-    category: "Food & Dining",
-    amount: -85.5,
-    type: "expense",
-  },
-  { id: 2, date: "2024-01-15", description: "Salary Deposit", category: "Income", amount: 5000, type: "income" },
-  { id: 3, date: "2024-01-14", description: "Gas Station", category: "Transportation", amount: -45.2, type: "expense" },
-  {
-    id: 4,
-    date: "2024-01-14",
-    description: "Netflix Subscription",
-    category: "Entertainment",
-    amount: -15.99,
-    type: "expense",
-  },
-  { id: 5, date: "2024-01-13", description: "Coffee Shop", category: "Food & Dining", amount: -12.5, type: "expense" },
-  { id: 6, date: "2024-01-12", description: "Freelance Payment", category: "Income", amount: 800, type: "income" },
-  {
-    id: 7,
-    date: "2024-01-11",
-    description: "Electric Bill",
-    category: "Bills & Utilities",
-    amount: -120.0,
-    type: "expense",
-  },
-  { id: 8, date: "2024-01-10", description: "Restaurant", category: "Food & Dining", amount: -65.3, type: "expense" },
-]
-
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Search, Filter, Download, Edit, Trash2 } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import { useTransactions } from "@/hooks/useTransaction";
+import {
+  Transaction,
+  CreateTransactionData,
+} from "@/store/slices/transactionSlice";
+import { toast } from "sonner";
 const categories = [
   "Food & Dining",
   "Transportation",
@@ -51,31 +46,134 @@ const categories = [
   "Healthcare",
   "Income",
   "Other",
-]
+];
 
 export default function TransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedType, setSelectedType] = useState("all")
-  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+  const [transactionToDelete, setTransactionToDelete] =
+    useState<Transaction | null>(null);
+  const {
+    transactions,
+    fetchTransactions,
+    isLoading,
+    error,
+    editTransaction,
+    removeTransaction,
+    updateFilters,
+    resetFilters,
+  } = useTransactions();
+
+  useEffect(() => {
+    const filters = {
+      search: searchTerm || undefined,
+      category: selectedCategory !== "all" ? selectedCategory : undefined,
+      type: selectedType !== "all" ? selectedType : undefined,
+    };
+    updateFilters(filters);
+    fetchTransactions(filters);
+  }, [searchTerm, selectedCategory, selectedType]);
 
   const filteredTransactions = transactions.filter((transaction) => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || transaction.category === selectedCategory
-    const matchesType = selectedType === "all" || transaction.type === selectedType
-    return matchesSearch && matchesCategory && matchesType
-  })
+    const matchesSearch = transaction.description
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || transaction.category === selectedCategory;
+    const matchesType =
+      selectedType === "all" || transaction.type === selectedType;
+    return matchesSearch && matchesCategory && matchesType;
+  });
+  const handleEdit = (transaction: Transaction): void => {
+    setEditingTransaction(transaction);
+    setIsEditModalOpen(true);
+  };
 
+  const handleDelete = (transaction: Transaction): void => {
+    setTransactionToDelete(transaction);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async (): Promise<void> => {
+    if (transactionToDelete) {
+      
+      try {
+        console.log(transactionToDelete._id)
+        await removeTransaction(transactionToDelete._id);
+        toast.success(`Deleted ${transactionToDelete.description}`)
+        setIsDeleteDialogOpen(false);
+        setTransactionToDelete(null);
+      } catch (error) {
+        console.error("Failed to delete transaction:", error);
+      }
+    }
+  };
+
+  const handleEditSubmit = async (
+    formData: Partial<CreateTransactionData>
+  ): Promise<void> => {
+    if (editingTransaction) {
+      try {
+        await editTransaction({
+          id: editingTransaction._id,
+          ...formData,
+        });
+        setIsEditModalOpen(false);
+        setEditingTransaction(null);
+      } catch (error) {
+        console.error("Failed to update transaction:", error);
+      }
+    }
+  };
+  const exportTransactions = (): void => {
+    const csvContent = [
+      ["Date", "Description", "Category", "Type", "Amount"].join(","),
+      ...filteredTransactions.map((t: Transaction) =>
+        [
+          new Date(t.date).toLocaleDateString(),
+          `"${t.description}"`, // Wrap in quotes to handle commas
+          t.category,
+          t.type,
+          t.amount.toString(),
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `transactions_${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+  const resetAllFilters = (): void => {
+    setSearchTerm("");
+    setSelectedCategory("all");
+    setSelectedType("all");
+    resetFilters();
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <Navbar/>
+      <Navbar />
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Transactions</h1>
-          <p className="text-gray-600">Manage and track all your financial transactions</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Transactions
+          </h1>
+          <p className="text-gray-600">
+            Manage and track all your financial transactions
+          </p>
         </div>
 
         {/* Filters and Search */}
@@ -100,7 +198,10 @@ export default function TransactionsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
@@ -130,7 +231,11 @@ export default function TransactionsPage() {
               <div className="space-y-2">
                 <Label>Actions</Label>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportTransactions}
+                  >
                     <Download className="h-4 w-4 mr-2" />
                     Export
                   </Button>
@@ -149,19 +254,24 @@ export default function TransactionsPage() {
           <CardHeader>
             <CardTitle>Transaction History</CardTitle>
             <CardDescription>
-              Showing {filteredTransactions.length} of {transactions.length} transactions
+              Showing {filteredTransactions.length} of {transactions.length}{" "}
+              transactions
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {filteredTransactions.map((transaction) => (
                 <div
-                  key={transaction.id}
+                  key={transaction._id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
                 >
                   <div className="flex items-center space-x-4">
                     <div
-                      className={`w-3 h-3 rounded-full ${transaction.type === "income" ? "bg-green-500" : "bg-red-500"}`}
+                      className={`w-3 h-3 rounded-full ${
+                        transaction.type === "income"
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                      }`}
                     />
                     <div>
                       <p className="font-medium">{transaction.description}</p>
@@ -169,24 +279,44 @@ export default function TransactionsPage() {
                         <Badge variant="secondary" className="text-xs">
                           {transaction.category}
                         </Badge>
-                        <span className="text-xs text-gray-500">{transaction.date}</span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(transaction.date).toLocaleDateString()}
+                        </span>
                       </div>
+                      <p className= " ml-2 text-sm">
+                        {transaction.notes}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <div className="text-right">
                       <p
-                        className={`font-semibold ${transaction.type === "income" ? "text-green-600" : "text-red-600"}`}
+                        className={`font-semibold ${
+                          transaction.type === "income"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
                       >
-                        {transaction.type === "income" ? "+" : ""}${Math.abs(transaction.amount).toFixed(2)}
+                        {transaction.type === "income" ? "+" : ""}$
+                        {Math.abs(transaction.amount).toFixed(2)}
                       </p>
-                      <p className="text-xs text-gray-500 capitalize">{transaction.type}</p>
+                      <p className="text-xs text-gray-500 capitalize">
+                        {transaction.type}
+                      </p>
                     </div>
                     <div className="flex space-x-1">
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(transaction)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(transaction)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -196,7 +326,33 @@ export default function TransactionsPage() {
             </div>
           </CardContent>
         </Card>
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "
+                {transactionToDelete?.description}"? This action cannot be
+                undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setTransactionToDelete(null)}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
-  )
+  );
 }
