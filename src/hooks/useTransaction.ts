@@ -20,7 +20,6 @@ import {
 export const useTransactions = () => {
   const dispatch = useAppDispatch();
 
-  // Selectors
   const {
     transactions,
     recentTransactions,
@@ -33,7 +32,6 @@ export const useTransactions = () => {
     total,
   } = useAppSelector((state) => state.transactions);
 
-  // Action creators wrapped in useCallback for performance
   const fetchTransactions = useCallback(
     (filters?: TransactionFilters) => {
       return dispatch(fetchAllTransactions(filters || currentFilters));
@@ -49,8 +47,8 @@ export const useTransactions = () => {
   );
 
   const fetchStats = useCallback(
-    (params?: { month?: number; year?: number }) => {
-      return dispatch(fetchTransactionStats(params ?? {}));
+    (params: { month: number; year: number }) => {
+      return dispatch(fetchTransactionStats(params));
     },
     [dispatch]
   );
@@ -135,18 +133,21 @@ export const useTransactions = () => {
     [transactions]
   );
 
-  // Computed values
-  const totalIncome = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalExpenses = Math.abs(
+  
+  const totalIncome = stats?.totalIncome ?? 
     transactions
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + t.amount, 0)
-  );
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.amount, 0);
 
-  const netBalance = totalIncome - totalExpenses;
+  const totalExpenses = stats?.totalExpenses ?? 
+    Math.abs(
+      transactions
+        .filter((t) => t.type === "expense")
+        .reduce((sum, t) => sum + t.amount, 0)
+    );
+
+  const netBalance = stats?.totalSavings ?? (totalIncome - totalExpenses);
+
 
   // Categories summary
   const categorySummary = transactions.reduce((acc, transaction) => {

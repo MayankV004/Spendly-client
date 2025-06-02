@@ -20,7 +20,7 @@ export default function ProfileDropdown() {
   const [isLogout , setLogout] = useState(false);
   const router = useRouter();
 
-  const {user , logout , isAuthenticated} = useAuth();
+  const {user , logout} = useAuth();
 
   const handleLogout = async()=>{
     setLogout(true);
@@ -38,7 +38,9 @@ export default function ProfileDropdown() {
 
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+     
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen} >
+      <div className="z-10">
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
@@ -80,6 +82,8 @@ export default function ProfileDropdown() {
           <span>{isLogout ? 'Logging out...':'Log out'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
+      </div>
     </DropdownMenu>
+
   )
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -34,30 +33,16 @@ import {
   PiggyBank,
   Target,
 } from "lucide-react";
-import Link from "next/link";
-import ProfileDropdown from "@/components/profile-dropdown";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-
-// Sample data
-const expenseData = [
-  { name: "Food & Dining", value: 1200, color: "#8884d8" },
-  { name: "Transportation", value: 800, color: "#82ca9d" },
-  { name: "Shopping", value: 600, color: "#ffc658" },
-  { name: "Entertainment", value: 400, color: "#ff7300" },
-  { name: "Bills & Utilities", value: 900, color: "#00ff00" },
-  { name: "Healthcare", value: 300, color: "#ff0000" },
-];
-
-const monthlyData = [
-  { month: "Jan", income: 5000, expenses: 3200 },
-  { month: "Feb", income: 5200, expenses: 3400 },
-  { month: "Mar", income: 4800, expenses: 3100 },
-  { month: "Apr", income: 5500, expenses: 3800 },
-  { month: "May", income: 5300, expenses: 3600 },
-  { month: "Jun", income: 5700, expenses: 4200 },
-];
-
+import { useTransactions } from "@/hooks/useTransaction";
+import { useEffect } from "react";
+import { getCategoryColor, transformMonthlyTrend } from "@/lib/dashboardUtils";
+interface ExpenseData {
+  name: string;
+  value: number;
+  color: string;
+}
 const trendData = [
   { month: "Jan", amount: 3200 },
   { month: "Feb", amount: 3400 },
@@ -66,55 +51,66 @@ const trendData = [
   { month: "May", amount: 3600 },
   { month: "Jun", amount: 4200 },
 ];
-
-const recentTransactions = [
-  {
-    id: 1,
-    description: "Grocery Store",
-    amount: -85.5,
-    category: "Food & Dining",
-    date: "2024-01-15",
-  },
-  {
-    id: 2,
-    description: "Salary Deposit",
-    amount: 5000,
-    category: "Income",
-    date: "2024-01-15",
-  },
-  {
-    id: 3,
-    description: "Gas Station",
-    amount: -45.2,
-    category: "Transportation",
-    date: "2024-01-14",
-  },
-  {
-    id: 4,
-    description: "Netflix Subscription",
-    amount: -15.99,
-    category: "Entertainment",
-    date: "2024-01-14",
-  },
-  {
-    id: 5,
-    description: "Coffee Shop",
-    amount: -12.5,
-    category: "Food & Dining",
-    date: "2024-01-13",
-  },
-];
-
 export default function DashboardPage() {
   const { user } = useAuth();
-  const totalIncome = 5700;
-  const totalExpenses = 4200;
-  const totalSavings = totalIncome - totalExpenses;
-  const savingsRate = ((totalSavings / totalIncome) * 100).toFixed(1);
+  const {
+    recentTransactions,
+    stats,
+    isStatsLoading,
+    isRecentLoading,
+    fetchStats,
+    fetchRecent,
+    totalIncome,
+    totalExpenses,
+    error,
+  } = useTransactions();
+  const actualTotalIncome = stats?.totalIncome || totalIncome || 0;
+  const actualTotalExpenses = stats?.totalExpenses || totalExpenses || 0;
+  const totalSavings = actualTotalIncome - actualTotalExpenses;
+  const savingsRate =
+    totalIncome > 0 ? ((totalSavings / totalIncome) * 100).toFixed(1) : "0.00";
 
+  useEffect(() => {
+    const currDate = new Date();
+    const month = currDate.getMonth() + 1;
+    const year = currDate.getFullYear();
+    fetchStats({ month, year });
+    fetchRecent(5);
+  }, [fetchRecent, fetchStats]);
+
+  const expenseData: ExpenseData[] =
+    stats?.categoryBreakdown?.map((category) => ({
+      name: category.name,
+      value: category.value,
+      color: getCategoryColor(category.name),
+    })) ?? [];
+
+  const monthlyData = stats?.monthlyTrend
+    ? transformMonthlyTrend(stats.monthlyTrend)
+    : [];
+  const monthlyBudget = 5000;
+  const budgetRemaining = monthlyBudget - totalExpenses;
+  const budgetPercentage =
+    monthlyBudget > 0
+      ? ((budgetRemaining / monthlyBudget) * 100).toFixed(0)
+      : "0";
+  if (isStatsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-lg">Loading dashboard...</div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-lg text-red-600">Error: {error}</div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar/>
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -125,6 +121,7 @@ export default function DashboardPage() {
             {"Here's what's happening with your finances this month."}
           </p>
         </div>
+        
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -140,7 +137,7 @@ export default function DashboardPage() {
                 ${totalIncome.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                +12% from last month
+                Current month total
               </p>
             </CardContent>
           </Card>
@@ -157,7 +154,7 @@ export default function DashboardPage() {
                 ${totalExpenses.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                +8% from last month
+                Current month total
               </p>
             </CardContent>
           </Card>
@@ -187,9 +184,11 @@ export default function DashboardPage() {
               <Target className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">$800</div>
+              <div className="text-2xl font-bold text-purple-600">
+                ₹{budgetRemaining.toLocaleString()}
+              </div>
               <p className="text-xs text-muted-foreground">
-                16% of monthly budget
+                {budgetPercentage}% of monthly budget
               </p>
             </CardContent>
           </Card>
@@ -327,45 +326,51 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentTransactions.map((transaction) => (
-                  <div
-                    key={transaction.id}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-2 h-2 rounded-full ${
-                          transaction.amount > 0 ? "bg-green-500" : "bg-red-500"
-                        }`}
-                      />
-                      <div>
-                        <p className="font-medium text-sm">
-                          {transaction.description}
+              {isRecentLoading ? (
+                <div className="text-center py-4">Loading transactions...</div>
+              ) : (
+                <div className="space-y-4">
+                  {recentTransactions.map((transaction) => (
+                    <div
+                      key={transaction._id}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            transaction.type === "income"
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          }`}
+                        />
+                        <div>
+                          <p className="font-medium text-sm">
+                            {transaction.description}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {transaction.category}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className={`font-medium text-sm ${
+                            transaction.type === "income"
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {transaction.type === "income" ? "+" : ""}$
+                          {Math.abs(transaction.amount).toFixed(2)}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {transaction.category}
+                          {new Date(transaction.date).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p
-                        className={`font-medium text-sm ${
-                          transaction.amount > 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {transaction.amount > 0 ? "+" : ""}$
-                        {Math.abs(transaction.amount).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {transaction.date}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
