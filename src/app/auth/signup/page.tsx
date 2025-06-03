@@ -1,79 +1,100 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, ArrowLeft, Check, X } from "lucide-react"
-import axios from "@/lib/axios"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, ArrowLeft, Check, X } from "lucide-react";
+import axios from "@/lib/axios";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SignupPage() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
-  })
+  });
 
-   const router = useRouter();
-
+  const router = useRouter();
+  const { clearAuth, clearAuthError, isLoading, signUp, error , isAuthenticated } = useAuth();
   const passwordRequirements = [
     { text: "At least 8 characters", met: formData.password.length >= 8 },
     { text: "Contains uppercase letter", met: /[A-Z]/.test(formData.password) },
     { text: "Contains lowercase letter", met: /[a-z]/.test(formData.password) },
     { text: "Contains number", met: /\d/.test(formData.password) },
-  ]
+  ];
 
-  const passwordsMatch = formData.password === formData.confirmPassword && formData.confirmPassword !== ""
+  const passwordsMatch =
+    formData.password === formData.confirmPassword &&
+    formData.confirmPassword !== "";
+
+  useEffect(() => {
+    if (error) {
+      clearAuthError();
+    }
+  }, [formData, clearAuthError]);
+
+  useEffect(()=>{
+      if(error)
+      {
+        toast.error(error);
+      }
+    },[error])
+
+    useEffect(()=>{
+       if(isAuthenticated)
+        {
+          clearAuth()
+        } 
+    },[])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+
     try {
-      const res = await axios.post('/auth/register', {
-        name:formData.name,
-        username:formData.username,
-        email:formData.email,
-        password:formData.password,
-        confirmPassword:formData.confirmPassword
-      })
-
-      if(res.data.success){
-        toast.success(res.data.message)
-        router.push('/dashboard');
-      }else{
-        toast.error(res.data.message)
+      const result = await signUp(formData);
+      if(result.meta.requestStatus === 'fulfilled')
+      {
+        toast.success(`${formData.username}'s registration successfull!`)
+        router.push('/dashboard')
       }
-
-    } catch (err:any) {
-      toast.error("Unexpected error while registering!")
-    }finally{
-      setIsLoading(false)
+    } catch (err: any) {
+      toast.error("Unexpected error while registering!");
     }
-  }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }))
-  }
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8">
-          <Link href="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to home
           </Link>
@@ -86,8 +107,12 @@ export default function SignupPage() {
                 <span className="text-white font-bold text-lg">F</span>
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">Create your account</CardTitle>
-            <CardDescription>Start your financial journey today</CardDescription>
+            <CardTitle className="text-2xl font-bold">
+              Create your account
+            </CardTitle>
+            <CardDescription>
+              Start your financial journey today
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -97,7 +122,7 @@ export default function SignupPage() {
                   <Input
                     id="name"
                     name="name"
-                    placeholder="John Doe"
+                    placeholder="Full Name"
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -108,7 +133,7 @@ export default function SignupPage() {
                   <Input
                     id="username"
                     name="username"
-                    placeholder="johndoe"
+                    placeholder="Username"
                     value={formData.username}
                     onChange={handleInputChange}
                     required
@@ -122,7 +147,7 @@ export default function SignupPage() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="Email"
                   value={formData.email}
                   onChange={handleInputChange}
                   required
@@ -148,7 +173,11 @@ export default function SignupPage() {
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
                 {formData.password && (
@@ -160,7 +189,13 @@ export default function SignupPage() {
                         ) : (
                           <X className="h-3 w-3 text-red-500 mr-2" />
                         )}
-                        <span className={req.met ? "text-green-600" : "text-red-600"}>{req.text}</span>
+                        <span
+                          className={
+                            req.met ? "text-green-600" : "text-red-600"
+                          }
+                        >
+                          {req.text}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -186,7 +221,11 @@ export default function SignupPage() {
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
                 {formData.confirmPassword && (
@@ -199,7 +238,9 @@ export default function SignupPage() {
                     ) : (
                       <>
                         <X className="h-3 w-3 text-red-500 mr-2" />
-                        <span className="text-red-600">Passwords do not match</span>
+                        <span className="text-red-600">
+                          Passwords do not match
+                        </span>
                       </>
                     )}
                   </div>
@@ -216,7 +257,10 @@ export default function SignupPage() {
             </form>
             <div className="mt-6 text-center text-sm">
               Already have an account?{" "}
-              <Link href="/auth/login" className="text-blue-600 hover:text-blue-500 font-medium">
+              <Link
+                href="/auth/login"
+                className="text-blue-600 hover:text-blue-500 font-medium"
+              >
                 Sign in
               </Link>
             </div>
@@ -224,5 +268,5 @@ export default function SignupPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

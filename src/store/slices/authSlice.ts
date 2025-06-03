@@ -153,7 +153,7 @@ export const verifyEmail = createAsyncThunk(
   "auth/verifyEmail",
   async (token: string, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`/api/auth/verify-email?token=${token}`);
+      const response = await axios.get(`/api/auth/verify-email?token=${token}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const res = await axios.post("/auth/forgot-password", {
+      const res = await axios.post("/api/auth/forgot-password", {
         email: formData.email,
       });
 
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email address" value={formData.email} onChange={handleInputChange} required />
+                <Input id="email" name="email" type="email" placeholder="Enter your email address" value={formData.email} onChange={handleInputChange} required />
               </div>
               <Button
                 type="submit"

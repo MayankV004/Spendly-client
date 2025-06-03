@@ -4,14 +4,13 @@ import { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { User, Settings, CreditCard, HelpCircle, LogOut } from "lucide-react"
+import { User, LogOut } from "lucide-react"
 import {useAuth} from "@/hooks/useAuth";
 import {toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -57,26 +56,10 @@ export default function ProfileDropdown() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
           <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>Billing</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <HelpCircle className="mr-2 h-4 w-4" />
-          <span>Help & Support</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem className="text-red-600 cursor-pointer" disabled={isLogout} onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>{isLogout ? 'Logging out...':'Log out'}</span>

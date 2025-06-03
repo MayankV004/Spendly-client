@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Plus, Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -51,7 +51,7 @@ function Navbar() {
     notes: "",
   });
 
-  const { addTransaction, isLoading } = useTransactions();
+  const { addTransaction, isLoading, fetchStats , fetchRecent , fetchTransactions } = useTransactions();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -66,7 +66,6 @@ function Navbar() {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     //Form Validation
@@ -94,6 +93,9 @@ function Navbar() {
       });
       setIsAddDialogOpen(false);
       toast.success("Transaction added successfully!");
+      fetchStats()
+      fetchRecent()
+      fetchTransactions()
     } catch (error: any) {
       toast.error("Transaction Failed!");
     }
@@ -108,8 +110,6 @@ function Navbar() {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/dashboard/transactions", label: "Transactions" },
-    { href: "/dashboard/budgets", label: "Budgets" },
-    { href: "/dashboard/goals", label: "Goals" },
   ];
 
   const NavLink = ({ href, label, mobile = false }: { href: string; label: string; mobile?: boolean }) => (

@@ -27,11 +27,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import {
-  Plus,
   TrendingUp,
   TrendingDown,
   PiggyBank,
   Target,
+  FileX,
+  BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
@@ -54,6 +55,25 @@ const trendData = [
   { month: "Jun", amount: 4200 },
 ];
 
+// Empty state component
+const EmptyStateCard = ({ 
+  title, 
+  description, 
+  icon: Icon = FileX,
+  height = "h-[250px] sm:h-[300px]"
+}: {
+  title: string;
+  description: string;
+  icon?: any;
+  height?: string;
+}) => (
+  <div className={`${height} flex flex-col items-center justify-center text-gray-500`}>
+    <Icon className="h-12 w-12 mb-4 text-gray-300" />
+    <h3 className="text-lg font-medium mb-2">{title}</h3>
+    <p className="text-sm text-center text-gray-400">{description}</p>
+  </div>
+);
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const {
@@ -68,12 +88,6 @@ export default function DashboardPage() {
     error,
   } = useTransactions();
   
-  const actualTotalIncome = stats?.totalIncome || totalIncome || 0;
-  const actualTotalExpenses = stats?.totalExpenses || totalExpenses || 0;
-  const totalSavings = actualTotalIncome - actualTotalExpenses;
-  const savingsRate =
-    totalIncome > 0 ? ((totalSavings / totalIncome) * 100).toFixed(1) : "0.00";
-
   useEffect(() => {
     const currDate = new Date();
     const month = currDate.getMonth() + 1;
@@ -89,7 +103,6 @@ export default function DashboardPage() {
       color: getCategoryColor(category.name),
     })) ?? [];
     
-  console.log(stats?.monthlyTrend);
   const monthlyData = stats?.monthlyTrend
     ? transformMonthlyTrend(stats.monthlyTrend)
     : [];
@@ -117,8 +130,10 @@ export default function DashboardPage() {
     );
   }
 
+  const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 640;
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-auto">
       <Navbar />
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Welcome Section */}
@@ -132,7 +147,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs sm:text-sm font-medium">
@@ -170,23 +185,6 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs sm:text-sm font-medium">
-                Total Savings
-              </CardTitle>
-              <PiggyBank className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg sm:text-2xl font-bold text-blue-600">
-                ₹{totalSavings.toLocaleString()}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Savings rate: {savingsRate}%
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">
                 Budget Remaining
               </CardTitle>
               <Target className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
@@ -213,37 +211,45 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer
-                config={{
-                  value: {
-                    label: "Amount",
-                  },
-                }}
-                className="h-[250px] sm:h-[300px]"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={expenseData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={window.innerWidth < 640 ? 60 : 80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) =>
-                        window.innerWidth < 640 
-                          ? `${(percent * 100).toFixed(0)}%`
-                          : `${name} ${(percent * 100).toFixed(0)}%`
-                      }
-                    >
-                      {expenseData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+              {expenseData.length === 0 ? (
+                <EmptyStateCard
+                  title="No Expense Data"
+                  description="Add some expenses to see your spending breakdown"
+                  icon={PiggyBank}
+                />
+              ) : (
+                <ChartContainer
+                  config={{
+                    value: {
+                      label: "Amount",
+                    },
+                  }}
+                  className="h-[250px] sm:h-[300px]"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={expenseData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) =>
+                          isMobile()
+                            ? `${(percent * 100).toFixed(0)}%`
+                            : `${name} ${(percent * 100).toFixed(0)}%`
+                        }
+                      >
+                        {expenseData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              )}
             </CardContent>
           </Card>
 
@@ -256,35 +262,43 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer
-                config={{
-                  income: {
-                    label: "Income",
-                    color: "hsl(var(--chart-1))",
-                  },
-                  expenses: {
-                    label: "Expenses",
-                    color: "hsl(var(--chart-2))",
-                  },
-                }}
-                className="h-[250px] sm:h-[300px]"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="month" 
-                      tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
-                    />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="income" fill="#16a34a" />
-                    <Bar dataKey="expenses" fill="#dc2626" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+              {monthlyData.length === 0 ? (
+                <EmptyStateCard
+                  title="No Monthly Data"
+                  description="Track your income and expenses to see monthly comparisons"
+                  icon={BarChart3}
+                />
+              ) : (
+                <ChartContainer
+                  config={{
+                    income: {
+                      label: "Income",
+                      color: "hsl(var(--chart-1))",
+                    },
+                    expenses: {
+                      label: "Expenses",
+                      color: "hsl(var(--chart-2))",
+                    },
+                  }}
+                  className="h-[250px] sm:h-[300px]"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={monthlyData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="month" 
+                        tick={{ fontSize: isMobile() ? 10 : 12 }}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: isMobile() ? 10 : 12 }}
+                      />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="income" fill="#16a34a" />
+                      <Bar dataKey="expenses" fill="#dc2626" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -300,35 +314,43 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer
-                config={{
-                  amount: {
-                    label: "Amount",
-                    color: "hsl(var(--chart-1))",
-                  },
-                }}
-                className="h-[250px] sm:h-[300px]"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trendData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="month" 
-                      tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
-                    />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line
-                      type="monotone"
-                      dataKey="amount"
-                      stroke="var(--color-amount)"
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+              {trendData.length === 0 ? (
+                <EmptyStateCard
+                  title="No Trend Data"
+                  description="Start tracking expenses to see your spending trends"
+                  icon={TrendingUp}
+                />
+              ) : (
+                <ChartContainer
+                  config={{
+                    amount: {
+                      label: "Amount",
+                      color: "hsl(var(--chart-1))",
+                    },
+                  }}
+                  className="h-[250px] sm:h-[300px]"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="month" 
+                        tick={{ fontSize: isMobile() ? 10 : 12 }}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: isMobile() ? 10 : 12 }}
+                      />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="amount"
+                        stroke="var(--color-amount)"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              )}
             </CardContent>
           </Card>
 
@@ -342,7 +364,7 @@ export default function DashboardPage() {
                     Your latest financial activity
                   </CardDescription>
                 </div>
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm" >
                   View All
                 </Button>
               </div>
@@ -350,6 +372,13 @@ export default function DashboardPage() {
             <CardContent>
               {isRecentLoading ? (
                 <div className="text-center py-4 text-sm">Loading transactions...</div>
+              ) : recentTransactions.length === 0 ? (
+                <EmptyStateCard
+                  title="No Transactions"
+                  description="Add your first transaction to get started"
+                  icon={FileX}
+                  height="h-[200px]"
+                />
               ) : (
                 <div className="space-y-3 sm:space-y-4">
                   {recentTransactions.map((transaction) => (

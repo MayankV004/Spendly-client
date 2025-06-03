@@ -2,22 +2,28 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Check, X } from "lucide-react"
-
+import { useAuth } from "@/hooks/useAuth"
+import { useSearchParams } from 'next/navigation'
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
   })
+  const router = useRouter()
+const searchParams = useSearchParams()
+  const [token, setToken] = useState<string | null>(null)
+
 
   const passwordRequirements = [
     { text: "At least 8 characters", met: formData.password.length >= 8 },
@@ -25,15 +31,22 @@ export default function ResetPasswordPage() {
     { text: "Contains lowercase letter", met: /[a-z]/.test(formData.password) },
     { text: "Contains number", met: /\d/.test(formData.password) },
   ]
-
+  const {isLoading , resetPass , error} = useAuth();
   const passwordsMatch = formData.password === formData.confirmPassword && formData.confirmPassword !== ""
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
+    try {
+      const data = {
+        token: token ?? "",
+        newPassword: formData.password
+      }
+      await resetPass(data);
+      toast.success("Password changed")
+      router.push('/auth/login');
+    } catch (error:any) {
+      toast.error("Faild to reset")
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +55,14 @@ export default function ResetPasswordPage() {
       [e.target.name]: e.target.value,
     }))
   }
+
+  useEffect(() => {
+    const tokenFromUrl = searchParams.get('token')
+    if (tokenFromUrl) {
+      setToken(tokenFromUrl)
+      console.log('Token:', tokenFromUrl)
+    }
+  }, [searchParams])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">

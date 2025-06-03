@@ -47,8 +47,8 @@ export const useTransactions = () => {
   );
 
   const fetchStats = useCallback(
-    async (params: { month: number; year: number }) => {
-      return dispatch(fetchTransactionStats(params));
+    async (params?: { month?: number; year?: number }) => {
+      return dispatch(fetchTransactionStats(params ?? {}));
     },
     [dispatch]
   );
