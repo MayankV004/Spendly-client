@@ -33,11 +33,12 @@ import {
   Target,
   FileX,
   BarChart3,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import { useTransactions } from "@/hooks/useTransaction";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getCategoryColor, transformMonthlyTrend } from "@/lib/dashboardUtils";
 
 interface ExpenseData {
@@ -75,7 +76,9 @@ const EmptyStateCard = ({
 );
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, fetchUserProfile } = useAuth();
+  const [isLoadingUser, setIsLoadingUser] = useState(false);
+  
   const {
     recentTransactions,
     stats,
@@ -88,13 +91,34 @@ export default function DashboardPage() {
     error,
   } = useTransactions();
   
+  // Ensure user data is loaded
   useEffect(() => {
-    const currDate = new Date();
-    const month = currDate.getMonth() + 1;
-    const year = currDate.getFullYear();
-    fetchStats({ month, year });
-    fetchRecent(5);
-  }, [fetchRecent, fetchStats]);
+    const loadUserData = async () => {
+      if (isAuthenticated && !user) {
+        setIsLoadingUser(true);
+        try {
+          await fetchUserProfile();
+        } catch (error) {
+          console.error('Failed to load user profile:', error);
+        } finally {
+          setIsLoadingUser(false);
+        }
+      }
+    };
+
+    loadUserData();
+  }, [isAuthenticated, user, fetchUserProfile]);
+
+  // Load transaction data
+  useEffect(() => {
+    if (isAuthenticated) {
+      const currDate = new Date();
+      const month = currDate.getMonth() + 1;
+      const year = currDate.getFullYear();
+      fetchStats({ month, year });
+      fetchRecent(5);
+    }
+  }, [isAuthenticated, fetchRecent, fetchStats]);
 
   const expenseData: ExpenseData[] =
     stats?.categoryBreakdown?.map((category) => ({
@@ -114,18 +138,42 @@ export default function DashboardPage() {
       ? ((budgetRemaining / monthlyBudget) * 100).toFixed(0)
       : "0";
 
-  if (isStatsLoading) {
+  // Show loading state while initializing
+  if (isStatsLoading || isLoadingUser) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-lg">Loading dashboard...</div>
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <div className="text-lg">Loading dashboard...</div>
+        </div>
       </div>
     );
   }
 
+  // Show error state
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-lg text-red-600">Error: {error}</div>
+        <div className="text-center">
+          <div className="text-lg text-red-600 mb-4">Error: {error}</div>
+          <Button onClick={() => window.location.reload()} variant="outline">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg text-gray-600 mb-4">Please log in to view your dashboard</div>
+          <Button onClick={() => window.location.href = '/auth/login'}>
+            Go to Login
+          </Button>
+        </div>
       </div>
     );
   }
@@ -139,11 +187,18 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name}!
+            Welcome back, {user?.name || 'User'}!
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
             {"Here's what's happening with your finances this month."}
           </p>
+          {user?.isEmailVerified === false && (
+            <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <p className="text-sm text-orange-800">
+                ⚠ Please verify your email address to ensure account security.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -364,14 +419,17 @@ export default function DashboardPage() {
                     Your latest financial activity
                   </CardDescription>
                 </div>
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm" >
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm">
                   View All
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               {isRecentLoading ? (
-                <div className="text-center py-4 text-sm">Loading transactions...</div>
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                  <span className="ml-2 text-sm">Loading transactions...</span>
+                </div>
               ) : recentTransactions.length === 0 ? (
                 <EmptyStateCard
                   title="No Transactions"

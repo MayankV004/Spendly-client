@@ -151,7 +151,7 @@ export const updateTransaction = createAsyncThunk(
   "transactions/update",
   async ({ id, ...updateData }: UpdateTransactionData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`/api/transactions/${id}`, updateData);
+      const response = await axios.post(`/api/transactions/update/${id}`, updateData);
       // console.log(response)
       return response.data;
     } catch (error: any) {
@@ -166,7 +166,7 @@ export const deleteTransaction = createAsyncThunk(
   "transactions/delete",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`/api/transactions/${id}`);
+      const response = await axios.post(`/api/transactions/delete/${id}`);
       return { id, data:response.data };
     } catch (error: any) {
       return rejectWithValue(

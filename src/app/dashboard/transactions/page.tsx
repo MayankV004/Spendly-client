@@ -80,6 +80,7 @@ export default function TransactionsPage() {
     };
     updateFilters(filters);
     fetchTransactions(filters);
+
   }, [searchTerm, selectedCategory, selectedType]);
 
   const filteredTransactions = transactions.filter((transaction) => {
@@ -106,7 +107,6 @@ export default function TransactionsPage() {
   const confirmDelete = async (): Promise<void> => {
     if (transactionToDelete) {
       try {
-        console.log(transactionToDelete._id);
         await removeTransaction(transactionToDelete._id);
         toast.success(`Deleted ${transactionToDelete.description}`);
         setIsDeleteDialogOpen(false);
@@ -174,6 +174,7 @@ export default function TransactionsPage() {
     setSelectedCategory("all");
     setSelectedType("all");
     resetFilters();
+    fetchTransactions()
   };
 
   return (
