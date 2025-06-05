@@ -8,6 +8,34 @@ A modern, responsive financial management application built with Next.js and Typ
 
 Deployed on Vercel with automatic deployments from the main branch.
 
+## UI Screenshots
+
+### Landing Page
+![Landing page](./public/1.png)
+
+### Authentication Pages
+
+#### Login Page
+![Login](./public/2.png)
+
+#### Signup Page
+![Signup](./public/3.png)
+
+#### Forgot password
+![Forgotpass](./public/8.png)
+
+### Dashboard
+![dashboard](./public/4.png)
+
+### Transaction
+![transaction](./public/5.png)
+
+#### Add Transaction Form
+![addTransaction](./public/6.png)
+
+#### Edit Transaction Form
+![editTransaction](./public/7.png)
+
 ## ✨ Features
 
 ### 🔐 Authentication
@@ -37,7 +65,7 @@ Deployed on Vercel with automatic deployments from the main branch.
 - **Smart Filtering**: Filter transactions by category (Food, Transportation, Entertainment, etc.), type (Income/Expense), and custom date ranges
 - **CSV Export**: Download your transaction data in CSV format for external analysis and record keeping
 - **Real-time Search**: Instantly search through your transactions
-- **Sort & Organize**: Multiple sorting options including date, amount, and category
+- **Sort & Organize**: Multiple sorting options like type and category
 - **Quick Actions**: Edit or delete transactions with intuitive modal interfaces
 
 ### 🔍 Advanced Analytics
@@ -49,7 +77,6 @@ Deployed on Vercel with automatic deployments from the main branch.
 
 ### 🎨 User Interface
 - **Responsive Design** - Mobile-first approach with seamless desktop experience
-- **Dark/Light Mode** - Theme switching for user preference
 - **Modern UI Components** - Built with Shadcn/ui component library
 - **Intuitive Icons** - Lucide React icons for better user experience
 
@@ -62,7 +89,6 @@ Deployed on Vercel with automatic deployments from the main branch.
 
 ### State Management
 - **[Redux Toolkit](https://redux-toolkit.js.org/)** - Efficient Redux development
-- **[RTK Query](https://redux-toolkit.js.org/rtk-query/overview)** - Data fetching and caching
 
 ### UI & Styling
 - **[Shadcn/ui](https://ui.shadcn.com/)** - Beautiful component library
@@ -87,8 +113,9 @@ finora-frontend/
 │   │   │   ├── reset-password/
 │   │   │   └── signup/
 │   │   ├── dashboard/         # Dashboard pages
+│   │   │   ├── page.tsx       # Main dashboard page
 │   │   │   └── transactions/  # Transaction management
-│   │   │       └── page.tsx
+│   │   │       └── page.tsx   # Transactions page
 │   │   ├── globals.css        # Global styles
 │   │   ├── layout.tsx         # Root layout
 │   │   └── page.tsx           # Home page
@@ -287,6 +314,7 @@ Deployed on **Vercel** with:
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
 ## 🙏 Acknowledgments
 
 - [Next.js](https://nextjs.org/) team for the amazing framework
@@ -297,7 +325,6 @@ Deployed on **Vercel** with:
 ## 📞 Support
 
 If you have any questions or need help, please:
-- Open an issue in this repository
 - Contact: mayank.msverma@gmail.com
 
 ---
