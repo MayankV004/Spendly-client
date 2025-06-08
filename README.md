@@ -8,6 +8,15 @@ A modern, responsive financial management application built with Next.js and Typ
 
 Deployed on Vercel with automatic deployments from the main branch.
 
+### Backend Link
+```bash
+https://finora-backend.onrender.com/
+```
+### Backend Repo
+```bash
+https://github.com/MayankV004/Finora-backend
+````
+
 ## UI Screenshots
 
 ### Landing Page
