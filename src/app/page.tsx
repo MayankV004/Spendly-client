@@ -33,22 +33,18 @@ export default function LandingPage() {
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm sm:text-base">
-                  F
+                  S
                 </span>
               </div>
               <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Finora
+                Spendly
               </span>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden sm:flex items-center space-x-4">
-              <Link href="/auth/login">
-                <Button variant="ghost" className="text-base">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/auth/signup">
+             
+              <Link href="/dashboard">
                 <Button className="text-base">Get Started</Button>
               </Link>
             </div>
@@ -70,20 +66,13 @@ export default function LandingPage() {
           {mobileMenuOpen && (
             <div className="sm:hidden border-t bg-white/95 backdrop-blur-sm">
               <div className="px-4 py-4 space-y-3">
-                <Link href="/auth/login" className="block border-b-2">
+                
+                <Link href="/dashboard" className="block ">
                   <Button
                     variant="ghost"
                     className="w-full justify-center text-base h-12"
                   >
-                    Login
-                  </Button>
-                </Link>
-                <Link href="/auth/signup" className="block ">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-center text-base h-12"
-                  >
-                    Create new account
+                    Start
                   </Button>
                 </Link>
               </div>
@@ -105,7 +94,7 @@ export default function LandingPage() {
 
           {/* Mobile-optimized CTA buttons */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center px-4 sm:px-0">
-            <Link href="/auth/signup" className="w-full sm:w-auto">
+            <Link href="/dashboard" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 className="w-full sm:w-auto text-base sm:text-lg px-8 py-3 sm:py-4 h-12 sm:h-14"

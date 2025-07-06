@@ -35,7 +35,6 @@ import {
   BarChart3,
   Loader2,
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import { useTransactions } from "@/hooks/useTransaction";
 import { useEffect, useState } from "react";
@@ -47,14 +46,23 @@ interface ExpenseData {
   color: string;
 }
 
-const trendData = [
-  { month: "Jan", amount: 3200 },
-  { month: "Feb", amount: 3400 },
-  { month: "Mar", amount: 3100 },
-  { month: "Apr", amount: 3800 },
-  { month: "May", amount: 3600 },
-  { month: "Jun", amount: 4200 },
-];
+
+interface TrendData{
+  month: number;
+  year: number;
+  type: string;
+  total: number;
+  monthLabel: string;
+}
+
+// const trendData = [
+//   { month: "Jan", amount: 3200 },
+//   { month: "Feb", amount: 3400 },
+//   { month: "Mar", amount: 3100 },
+//   { month: "Apr", amount: 3800 },
+//   { month: "May", amount: 3600 },
+//   { month: "Jun", amount: 4200 },
+// ];
 
 // Empty state component
 const EmptyStateCard = ({ 
@@ -76,7 +84,7 @@ const EmptyStateCard = ({
 );
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, fetchUserProfile } = useAuth();
+ 
   const [isLoadingUser, setIsLoadingUser] = useState(false);
   
   const {
@@ -91,34 +99,21 @@ export default function DashboardPage() {
     error,
   } = useTransactions();
   
-  // Ensure user data is loaded
-  useEffect(() => {
-    const loadUserData = async () => {
-      if (isAuthenticated && !user) {
-        setIsLoadingUser(true);
-        try {
-          await fetchUserProfile();
-        } catch (error) {
-          console.error('Failed to load user profile:', error);
-        } finally {
-          setIsLoadingUser(false);
-        }
-      }
-    };
+  useEffect(()=>{
+    
+    fetchRecent();
+    fetchStats();
+  },[])
+  const getMonthLabel = (monthNumber: number): string =>
+  new Date(2025, monthNumber - 1).toLocaleString("default", { month: "short" });
 
-    loadUserData();
-  }, [isAuthenticated, user, fetchUserProfile]);
-
-  // Load transaction data
-  useEffect(() => {
-    if (isAuthenticated) {
-      const currDate = new Date();
-      const month = currDate.getMonth() + 1;
-      const year = currDate.getFullYear();
-      fetchStats({ month, year });
-      fetchRecent(5);
-    }
-  }, [isAuthenticated, fetchRecent, fetchStats]);
+  const trendData: TrendData[] = stats?.monthlyTrend?.map((item)=>({
+      month: item._id.month,
+      year: item._id.year,
+      type: item._id.type,
+      total: item.total,
+      monthLabel: getMonthLabel(item._id.month)
+  })) ?? []
 
   const expenseData: ExpenseData[] =
     stats?.categoryBreakdown?.map((category) => ({
@@ -164,19 +159,6 @@ export default function DashboardPage() {
     );
   }
 
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-lg text-gray-600 mb-4">Please log in to view your dashboard</div>
-          <Button onClick={() => window.location.href = '/auth/login'}>
-            Go to Login
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 640;
 
@@ -187,18 +169,12 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name || 'User'}!
+            Welcome back, {'User'}!
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
             {"Here's what's happening with your finances this month."}
           </p>
-          {user?.isEmailVerified === false && (
-            <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm text-orange-800">
-                ⚠ Please verify your email address to ensure account security.
-              </p>
-            </div>
-          )}
+          
         </div>
 
         {/* Stats Cards */}
@@ -389,7 +365,7 @@ export default function DashboardPage() {
                     <LineChart data={trendData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
-                        dataKey="month" 
+                        dataKey="monthLabel" 
                         tick={{ fontSize: isMobile() ? 10 : 12 }}
                       />
                       <YAxis 
@@ -398,7 +374,7 @@ export default function DashboardPage() {
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <Line
                         type="monotone"
-                        dataKey="amount"
+                        dataKey="total"
                         stroke="var(--color-amount)"
                         strokeWidth={2}
                       />

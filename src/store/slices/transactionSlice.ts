@@ -124,6 +124,7 @@ export const fetchTransactionStats = createAsyncThunk(
       if (params.year) queryParams.append("year", params.year.toString());
 
       const response = await axios.get(`/api/transactions/stats?${queryParams.toString()}`);
+      // console.log(response.data)
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

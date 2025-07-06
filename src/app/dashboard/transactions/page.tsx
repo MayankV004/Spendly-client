@@ -149,7 +149,7 @@ export default function TransactionsPage() {
       ["Date", "Description", "Category", "Type", "Amount"].join(","),
       ...filteredTransactions.map((t: Transaction) =>
         [
-          new Date(t.date).toLocaleDateString(),
+          t.date.slice(0,10),
           `"${t.description}"`, // Wrap in quotes to handle commas
           t.category,
           t.type,
@@ -302,7 +302,7 @@ export default function TransactionsPage() {
                 {filteredTransactions.map((transaction) => (
                   <div
                     key={transaction._id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:text-black"
                   >
                     <div className="flex items-center space-x-4">
                       <div
