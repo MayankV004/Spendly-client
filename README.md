@@ -1,61 +1,23 @@
-# Finora Frontend 
+# Spendly Frontend 
 
 A modern, responsive financial management application built with Next.js and TypeScript. Finora helps users track their expenses, manage transactions, and gain insights into their financial habits with beautiful charts and analytics.
 
 ## 🚀 Live Demo
 
-**[View Live Application](https://finora-frontend.vercel.app)**
+**[View Live Application](https://spendly-client.vercel.app)**
 
 Deployed on Vercel with automatic deployments from the main branch.
 
 ### Backend Link
 ```bash
-https://finora-backend.onrender.com/
+https://spendly-backend-4dmv.onrender.com
 ```
 ### Backend Repo
 ```bash
-https://github.com/MayankV004/Finora-backend
+https://github.com/MayankV004/Spendly-backend
 ````
 
-## UI Screenshots
-
-### Landing Page
-![Landing page](./public/1.png)
-
-### Authentication Pages
-
-#### Login Page
-![Login](./public/2.png)
-
-#### Signup Page
-![Signup](./public/3.png)
-
-#### Forgot password
-![Forgotpass](./public/8.png)
-
-### Dashboard
-![dashboard](./public/4.png)
-
-### Transaction
-![transaction](./public/5.png)
-
-#### Add Transaction Form
-![addTransaction](./public/6.png)
-
-#### Edit Transaction Form
-![editTransaction](./public/7.png)
-
 ## ✨ Features
-
-### 🔐 Authentication
-- **User Registration** - Create new accounts with email verification
-- **Email Verification** - Secure account activation via email
-- **Secure Login** - JWT-based authentication with automatic token refresh
-- **Password Reset** - Forgot password functionality with email recovery
-- **Change Password** - Update password from user profile
-- **Logout** - Secure session termination with token cleanup
-- **Protected Routes** - Authentication guards for secure pages
-- **Auto-login** - Persistent sessions with localStorage token management
 
 ### 💳 Transaction Management
 - **Add Transactions** - Create income and expense entries with categories
@@ -110,97 +72,7 @@ https://github.com/MayankV004/Finora-backend
 ### Deployment
 - **[Vercel](https://vercel.com/)** - Deployment and hosting platform
 
-## 🏗️ Project Structure
-
-```
-finora-frontend/
-├── src/
-│   ├── app/                    # Next.js app directory
-│   │   ├── auth/               # Authentication pages
-│   │   │   ├── forgot-password/
-│   │   │   ├── login/
-│   │   │   ├── reset-password/
-│   │   │   └── signup/
-│   │   ├── dashboard/         # Dashboard pages
-│   │   │   ├── page.tsx       # Main dashboard page
-│   │   │   └── transactions/  # Transaction management
-│   │   │       └── page.tsx   # Transactions page
-│   │   ├── globals.css        # Global styles
-│   │   ├── layout.tsx         # Root layout
-│   │   └── page.tsx           # Home page
-│   ├── components/            # Reusable UI components
-│   │   ├── ui/               # Shadcn UI components
-│   │   ├── EditTransactionModal.tsx
-│   │   ├── Navbar.tsx
-│   │   ├── profile-dropdown.tsx
-│   │   └── theme-provider.tsx
-│   │               
-│   │          
-│   ├── hooks/                # Custom React hooks
-│   │   ├── redux.ts          # Redux hooks
-│   │   ├── useAuth.ts        # Authentication hook
-│   │   └── useTransaction.ts # Transaction management hook
-│   ├── store/                # Redux store configuration
-│   │   ├── slices/           # Redux slices
-│   │   │   ├── authSlice.ts
-│   │   │   └── transactionSlice.ts
-│   │   └── index.ts          # Store setup
-│   ├── lib/                  # Utility functions
-│   │   ├── axios.ts          # Axios configuration
-│   │   ├── dashboardUtils.ts # Dashboard utilities
-│   │   └── utils.ts          # General utilities
-│   ├── providers/            # Context providers
-│   │   ├── AuthProvider.tsx
-│   │   └── ReduxProvider.tsx
-│   └── types/                # TypeScript type definitions
-├── public/                   # Static assets
-├── .env.local               # Environment variables
-├── .gitignore              # Git ignore rules
-├── components.json         # Shadcn component config
-├── eslint.config.mjs       # ESLint configuration
-├── next.config.ts          # Next.js configuration
-├── next-env.d.ts           # Next.js TypeScript declarations
-├── package.json            # Dependencies and scripts
-├── postcss.config.mjs      # PostCSS configuration
-├── README.md               # Project documentation
-├── tailwind.config.ts      # Tailwind CSS configuration
-├── tsconfig.json           # TypeScript configuration
-└── vercel.json             # Vercel deployment config
-```
-
 ## 🎯 Custom Hooks
-
-### useAuth Hook
-Comprehensive authentication management with advanced features:
-
-```typescript
-const { 
-  login, 
-  logout, 
-  signUp,
-  forgotPass, 
-  resetPass,
-  changePass,
-  verifyUserEmail,
-  resendVerification,
-  refresh,
-  initializeAuth,
-  fetchUserProfile,
-  user, 
-  isLoading, 
-  error 
-} = useAuth();
-```
-
-**Features:**
-- User login with email/password
-- User registration with email verification
-- Password reset and change functionality
-- Email verification and resend verification
-- Automatic token refresh and management
-- User session persistence with localStorage
-- Profile fetching and updates
-- Comprehensive error handling
 
 ### useTransactions Hook
 Complete transaction management with filtering and analytics:
@@ -251,8 +123,8 @@ const {
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/finora-frontend.git
-   cd finora-frontend
+   git clone https://github.com/yourusername/Spendly-client.git
+   cd Spendly-client
    ```
 
 2. **Install dependencies**
